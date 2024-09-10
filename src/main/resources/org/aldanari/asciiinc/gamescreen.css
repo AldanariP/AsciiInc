@@ -1,0 +1,13 @@
+#GameScreen {
+    -fx-control-inner-background: black;
+    -fx-text-fill: white;
+}
+
+#GameScreen .content {
+    -fx-padding: 0;
+}
+
+#GameScreen .scroll-bar {
+    -fx-pref-width: 1;
+    -fx-opacity: 0;
+}
