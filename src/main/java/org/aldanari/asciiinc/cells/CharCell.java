@@ -1,6 +1,6 @@
 package org.aldanari.asciiinc.cells;
 
-public class CharCell implements Cell {
+public class CharCell extends Cell {
 
 	private final Character value;
 

@@ -38,18 +38,12 @@ public class Runner extends Application {
                 }
             }
         };
-        timer.start();
+//        timer.start();
 
-        GameGrid gg = new GameGrid(20, 20);
-        gg.fillWithRandom();
+        GameGrid gg = new GameGrid(40, 20);
+        GridGenerator ggr = new GridGenerator(gg, 1L);
+        ggr.placeMiningCell(0.01F, 5);
         System.out.println(gg);
-        Cell[][] grid = gg.getView(5, 5, 10, 10);
-        for (int i = 0; i < grid.length; i++) {
-            for (int j = 0; j < grid[i].length; j++) {
-                System.out.print(grid[i][j].toChar());
-            }
-            System.out.println();
-        }
 
         stage.setTitle("Hello!");
         stage.setScene(scene);
