@@ -6,8 +6,8 @@ import javafx.scene.text.Text;
 
 public class GameScreen extends TextArea {
 
-    private Integer xSize;
-    private Integer ySize;
+    private final Integer xSize;
+    private final Integer ySize;
 
     public GameScreen(int fontSize) {
         super();
@@ -16,19 +16,16 @@ public class GameScreen extends TextArea {
         this.setWrapText(false);
         this.setFont(Font.font("Monospaced", fontSize));
         this.setId("GameScreen");
+
+        this.xSize = getCharsPerLine();
+        this.ySize = getLinePerHeigth();
     }
 
     public int getXSize() {
-        if (xSize == null) {
-            xSize = getCharsPerLine();
-        }
         return xSize;
     }
 
     public int getYSize() {
-        if (ySize == null) {
-            ySize = getLinePerHeigth();
-        }
         return ySize;
     }
 

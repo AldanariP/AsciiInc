@@ -5,7 +5,6 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.aldanari.asciiinc.cells.Cell;
 
 import java.util.Objects;
 
@@ -21,6 +20,13 @@ public class Runner extends Application {
     public static final int FONT_SIZE = 20;
     private static final int WINDOW_WIDTH = 480;
     private static final int WINDOW_HEIGHT = 270;
+
+    //Game grid properties
+    public static final int GRID_HEIGTH = 20;
+    public static final int GRID_WIDTH = 40;
+    public static final float GRID_DENSITY = 0.01F;
+    public static final int MINING_CROP_SIZE = 2;
+    public static final long GRID_SEED = 1L;
 
     @Override
     public void start(Stage stage) {
@@ -40,9 +46,9 @@ public class Runner extends Application {
         };
 //        timer.start();
 
-        GameGrid gg = new GameGrid(40, 20);
-        GridGenerator ggr = new GridGenerator(gg, 1L);
-        ggr.placeMiningCell(0.01F, 5);
+        GameGrid gg = new GameGrid(GRID_WIDTH, GRID_HEIGTH);
+        GridGenerator ggr = new GridGenerator(gg, GRID_SEED);
+        ggr.placeMiningCell(GRID_DENSITY, MINING_CROP_SIZE);
         System.out.println(gg);
 
         stage.setTitle("Hello!");

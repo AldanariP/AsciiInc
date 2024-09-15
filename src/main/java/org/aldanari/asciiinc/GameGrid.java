@@ -2,14 +2,13 @@ package org.aldanari.asciiinc;
 
 import org.aldanari.asciiinc.cells.Cell;
 import org.aldanari.asciiinc.cells.CharCell;
-import org.aldanari.asciiinc.cells.MiningCell;
 
 import java.util.Arrays;
-import java.util.Random;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.Iterator;
+import java.util.Spliterator;
+import java.util.function.Consumer;
 
-public class GameGrid {
+public class GameGrid implements Iterable<Cell> {
 	private final Cell[][] grid;
 	private final int heigth;
 	private final int width;
@@ -30,13 +29,17 @@ public class GameGrid {
 	}
 
 	public Cell getCell(int x, int y) {
+		if (!this.isInBounds(x, y)) {
+			throw new IndexOutOfBoundsException("Coordinate: (x=" + x + ", y=" + y + ") is out of bounds: (x=" + this.width + ", y=" + this.heigth + ")");
+		}
 		return this.grid[y][x];
 	}
 
 	public void setCell(int x, int y, Cell cell) {
-		if (this.isInBounds(x, y)) {
-			this.grid[y][x] = cell;
+		if (!this.isInBounds(x, y)) {
+			throw new IndexOutOfBoundsException("Coordinate: (x=" + x + ", y=" + y + ") is out of bounds: (x=" + this.width + ", y=" + this.heigth + ")");
 		}
+		this.grid[y][x] = cell;
 	}
 
 	public int getWidth() {
@@ -80,5 +83,20 @@ public class GameGrid {
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+
+	@Override
+	public Iterator<Cell> iterator() {
+		return Arrays.stream(grid).flatMap(Arrays::stream).iterator();
+	}
+
+	@Override
+	public void forEach(Consumer<? super Cell> action) {
+		Iterable.super.forEach(action);
+	}
+
+	@Override
+	public Spliterator<Cell> spliterator() {
+		return Iterable.super.spliterator();
 	}
 }

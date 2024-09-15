@@ -27,27 +27,53 @@ public class GridGenerator {
 			int x = rand.nextInt(this.grid.getWidth() - 1);
 			int y = rand.nextInt(this.grid.getHeight() - 1);
 			this.grid.setCell(x, y, new MiningCell(x, y));
-			this.fillNeighbors(x, y, rand, 0.8F);
+			this.fillNeighbors(x, y, size, 0);
 		}
 
+		fillGaps();
+	}
+
+
+	private void fillNeighbors(int x, int y, int size, int depth) {
+		if (!this.grid.getCell(x, y).is(MiningCell.class)) {
+			return;
+		}
+
+		int[][] neighbors = {
+				{-1, -1}, {-1, 0}, {-1, 1},
+				{0, -1}, {0, 1},
+				{1, -1}, {1, 0}, {1, 1}
+		};
+
+		for (int[] neighbor : neighbors) {
+			int newX = x + neighbor[0];
+			int newY = y + neighbor[1];
+			if (this.grid.isInBounds(newX, newY)) {
+				double k = 5.0 / size; // stepness factor
+				double newProbability = 1.0 / (1.0 + Math.exp(k * (depth - (double) size / 2))); // expodential decay
+				if (rand.nextDouble() < newProbability) {
+					this.grid.setCell(newX, newY, new MiningCell(newX, newY));
+					fillNeighbors(newX, newY, size, depth + 1);
+				}
+			}
+		}
+	}
+
+	private void fillGaps() {
 		boolean modified;
 		do {
 			modified = false;
 			for (int x = 0; x < this.grid.getWidth(); x++) {
 				for (int y = 0; y < this.grid.getHeight(); y++) {
 					if (!this.grid.getCell(x, y).is(MiningCell.class)) {
-						int[] north = {x - 1, y};
-						int[] south = {x, y + 1};
-						if (this.checkPoles(north, south)) {
-							this.grid.setCell(x, y, new MiningCell(x, y));
-							modified = true;
-						}
-
+						int[] west = {x - 1, y};
 						int[] east = {x + 1, y};
-						int[] west = {x, y - 1};
+						int[] north = {x, y + 1};
+						int[] south = {x, y - 1};
 						if (this.checkPoles(east, west)) {
 							this.grid.setCell(x, y, new MiningCell(x, y));
 							modified = true;
+							break;
 						}
 					}
 				}
@@ -62,29 +88,5 @@ public class GridGenerator {
 			return pole1Cell.is(MiningCell.class) && pole2Cell.is(MiningCell.class);
 		}
 		return false;
-	}
-
-
-	private void fillNeighbors(int x, int y, Random rand, float probability) {
-		if (!this.grid.getCell(x, y).is(MiningCell.class)) {
-			return;
-		}
-
-		int[][] neighbors = {
-				{-1, -1}, {-1, 0}, {-1, 1},
-				{0, -1}, {0, 1},
-				{1, -1}, {1, 0}, {1, 1}
-		};
-
-		for (int[] neighbor : neighbors) {
-			int newX = x + neighbor[0];
-			int newY = y + neighbor[1];
-			if (newX >= 0 && newX < this.grid.getWidth() && newY >= 0 && newY < this.grid.getHeight()) {
-				if (rand.nextDouble(0D, 1D) < probability) {
-					this.grid.setCell(newX, newY, new MiningCell(newX, newY));
-					fillNeighbors(newX, newY, rand, probability / 4);
-				}
-			}
-		}
 	}
 }

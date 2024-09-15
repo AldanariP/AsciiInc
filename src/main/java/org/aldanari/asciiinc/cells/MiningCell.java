@@ -12,6 +12,13 @@ public class MiningCell extends Cell {
 		this.skin = '▒';
 	}
 
+	// used for debuggin, not intended to have different skin on mining cell
+	public MiningCell(int x, int y, char altSkin) {
+		this.x = x;
+		this.y = y;
+		this.skin = altSkin;
+	}
+
 	@Override
 	public Character toChar() {
 		return this.skin;
