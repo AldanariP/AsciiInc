@@ -6,6 +6,7 @@ import org.aldanari.asciiinc.cells.CharCell;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Spliterator;
+import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 public class GameGrid implements Iterable<Cell> {
@@ -24,21 +25,24 @@ public class GameGrid implements Iterable<Cell> {
 		}
 	}
 
+	private void throwIfOutOfBounds(int x, int y) {
+		if (!this.isInBounds(x, y)) {
+			String message = String.format("Coordinate: (x=%d, y=%d) is out of bounds: (x=%d, y=%d)", x, y, this.width, this.heigth);
+			throw new IndexOutOfBoundsException(message);
+		}
+	}
+
 	public boolean isInBounds(int x, int y) {
 		return x >= 0 && x < this.width && y >= 0 && y < this.heigth;
 	}
 
-	public Cell getCell(int x, int y) {
-		if (!this.isInBounds(x, y)) {
-			throw new IndexOutOfBoundsException("Coordinate: (x=" + x + ", y=" + y + ") is out of bounds: (x=" + this.width + ", y=" + this.heigth + ")");
-		}
+	public Cell getCellAt(int x, int y) {
+		this.throwIfOutOfBounds(x, y);
 		return this.grid[y][x];
 	}
 
-	public void setCell(int x, int y, Cell cell) {
-		if (!this.isInBounds(x, y)) {
-			throw new IndexOutOfBoundsException("Coordinate: (x=" + x + ", y=" + y + ") is out of bounds: (x=" + this.width + ", y=" + this.heigth + ")");
-		}
+	public void setCellAt(int x, int y, Cell cell) {
+		this.throwIfOutOfBounds(x, y);
 		this.grid[y][x] = cell;
 	}
 
@@ -51,7 +55,7 @@ public class GameGrid implements Iterable<Cell> {
 	}
 
 	public Cell[][] getGrid() {
-		return grid;
+		return this.grid;
 	}
 
 	public Cell[][] getView(int x, int y, int width, int height) {
@@ -62,12 +66,28 @@ public class GameGrid implements Iterable<Cell> {
 		return newGrid;
 	}
 
+	public String getViewAsString(int x, int y, int width, int height) {
+		this.throwIfOutOfBounds(x + width, y + height);
+
+		StringBuilder sb = new StringBuilder();
+		for (int y_ = 0; y_ < height; y_++) {
+			for (int x_ = 0; x_ < width; x_++) {
+				sb.append(this.getCellAt(x_, y_).toChar());
+			}
+			sb.append('\n');
+		}
+		if (!sb.isEmpty()) { // remove the last empty line
+			sb.setLength(sb.length() - 1);
+		}
+		return sb.toString();
+	}
+
 	public void fillWithRandom() {
-		for (int i = 0; i < grid.length; i++) {
-			for (int j = 0; j < grid[i].length; j++) {
+		for (int i = 0; i < this.getWidth(); i++) {
+			for (int j = 0; j < this.getHeight(); j++) {
 				double f = Math.random() / Math.nextDown(1f);
-				int randomCode = (int) (32 * (1f - f) + 125 * f);
-				this.grid[i][j] = new CharCell((char) randomCode);
+				char randomCode = (char) (32 * (1f - f) + 125 * f); // math magic to get random ascii char between 32 and 125
+				this.setCellAt(i, j, new CharCell(randomCode));
 			}
 		}
 	}
@@ -76,18 +96,22 @@ public class GameGrid implements Iterable<Cell> {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for (Cell[] cells : grid) {
-			for (Cell cell : cells) {
-				sb.append(cell.toChar());
+		for (int y = 0; y < this.getHeight(); y++) {
+			for (int x = 0; x < this.getWidth(); x++) {
+				sb.append(this.getCellAt(x, y).toChar());
 			}
-			sb.append("\n");
+			sb.append('\n');
+		}
+		// Remove the last newline character
+		if (!sb.isEmpty()) {
+			sb.setLength(sb.length() - 1);
 		}
 		return sb.toString();
 	}
 
 	@Override
 	public Iterator<Cell> iterator() {
-		return Arrays.stream(grid).flatMap(Arrays::stream).iterator();
+		return Arrays.stream(this.grid).flatMap(Arrays::stream).iterator();
 	}
 
 	@Override

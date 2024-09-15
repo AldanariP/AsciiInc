@@ -10,54 +10,68 @@ import java.util.Objects;
 
 public class Runner extends Application {
 
-    //frame rate constants
-    private long lastUpdate = 0;
-    public static final int FRAME_RATE = 30;
-    private static final long SECOND_TO_NANOS = 1_000_000_000;
-    private static final long UPDATE_TIMING = SECOND_TO_NANOS / FRAME_RATE;
+	//frame rate constants
+	private long lastUpdate = 0;
+	public static final int FRAME_RATE = 1;
+	private static final long SECOND_TO_NANOS = 1_000_000_000;
+	private static final long UPDATE_TIMING = SECOND_TO_NANOS / FRAME_RATE;
 
-    //resolution and size constants
-    public static final int FONT_SIZE = 20;
-    private static final int WINDOW_WIDTH = 480;
-    private static final int WINDOW_HEIGHT = 270;
+	//resolution and size constants
+	public static final int FONT_SIZE = 20;
+	private static final int WINDOW_WIDTH = 480;
+	private static final int WINDOW_HEIGHT = 270;
 
-    //Game grid properties
-    public static final int GRID_HEIGTH = 20;
-    public static final int GRID_WIDTH = 40;
-    public static final float GRID_DENSITY = 0.01F;
-    public static final int MINING_CROP_SIZE = 2;
-    public static final long GRID_SEED = 1L;
+	//Game grid properties
+	public static final int GRID_HEIGTH = 20;
+	public static final int GRID_WIDTH = 40;
+	public static final float GRID_DENSITY = 0.01F;
+	public static final int MINING_CROP_SIZE = 2;
+	public static final float MINING_CROP_ENTROPY = 15F;
+	public static final long GRID_SEED = 1L;
 
-    @Override
-    public void start(Stage stage) {
-        GameScreen gameScreen = new GameScreen(FONT_SIZE);
-        StackPane root = new StackPane(gameScreen);
-        Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
-        scene.getStylesheets().add(Objects.requireNonNull(getClass().getResource("gamescreen.css")).toExternalForm());
+	@Override
+	public void start(Stage stage) {
+		// Init Grid and generate terrain
+		GameGrid gameGrid = new GameGrid(GRID_WIDTH, GRID_HEIGTH);
+		GridGenerator gridGenerator = new GridGenerator(gameGrid, GRID_SEED);
+		gridGenerator.placeMiningCell(GRID_DENSITY, MINING_CROP_SIZE, MINING_CROP_ENTROPY);
 
-        AnimationTimer timer = new AnimationTimer() {
-            @Override
-            public void handle(long now) {
-                if (now - lastUpdate > UPDATE_TIMING) {
-                    gameScreen.fillWithRandom();
-                    lastUpdate = now;
-                }
-            }
-        };
-//        timer.start();
+		// Init Screen
+		GameScreen gameScreen = new GameScreen(FONT_SIZE);
+		gameScreen.lookAt(gameGrid);
 
-        GameGrid gg = new GameGrid(GRID_WIDTH, GRID_HEIGTH);
-        GridGenerator ggr = new GridGenerator(gg, GRID_SEED);
-        ggr.placeMiningCell(GRID_DENSITY, MINING_CROP_SIZE);
-        System.out.println(gg);
+		// Init Scene
+		StackPane root = new StackPane(gameScreen);
+		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
+		scene.getStylesheets().add(Objects.requireNonNull(this.getClass().getResource("gamescreen.css")).toExternalForm());
 
-        stage.setTitle("Hello!");
-        stage.setScene(scene);
-        stage.resizableProperty().setValue(false);
-        stage.show();
-    }
+		// Init InputManager
+		InputManager inputManager = new InputManager();
+		inputManager.notify(gameScreen);
+		scene.setOnKeyPressed(inputManager);
+		scene.setOnKeyPressed(e -> System.out.println(e.getCode()));
 
-    public static void main(String[] args) {
-        launch();
-    }
+		// Setup graphic loop
+		AnimationTimer graphicTimer = new AnimationTimer() {
+			@Override
+			public void handle(long now) {
+				if (now - Runner.this.lastUpdate > UPDATE_TIMING) {
+					gameScreen.updateView();
+					Runner.this.lastUpdate = now;
+				}
+			}
+		};
+        graphicTimer.start();
+
+		// Setup and show stage
+		stage.setTitle("AsciiInc");
+		stage.resizableProperty().setValue(false);
+		stage.requestFocus();
+		stage.setScene(scene);
+		stage.show();
+	}
+
+	public static void main(String[] args) {
+		launch();
+	}
 }
