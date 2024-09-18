@@ -8,11 +8,12 @@ import javafx.stage.Stage;
 
 import java.util.Objects;
 
+
 public class Runner extends Application {
 
 	//frame rate constants
 	private long lastUpdate = 0;
-	public static final int FRAME_RATE = 1;
+	public static final int FRAME_RATE = 60;
 	private static final long SECOND_TO_NANOS = 1_000_000_000;
 	private static final long UPDATE_TIMING = SECOND_TO_NANOS / FRAME_RATE;
 
@@ -22,9 +23,9 @@ public class Runner extends Application {
 	private static final int WINDOW_HEIGHT = 270;
 
 	//Game grid properties
-	public static final int GRID_HEIGTH = 20;
-	public static final int GRID_WIDTH = 40;
-	public static final float GRID_DENSITY = 0.01F;
+	public static final int GRID_HEIGTH = 40;
+	public static final int GRID_WIDTH = 80;
+	public static final float GRID_DENSITY = 0.003F;
 	public static final int MINING_CROP_SIZE = 2;
 	public static final float MINING_CROP_ENTROPY = 15F;
 	public static final long GRID_SEED = 1L;
@@ -44,12 +45,6 @@ public class Runner extends Application {
 		StackPane root = new StackPane(gameScreen);
 		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 		scene.getStylesheets().add(Objects.requireNonNull(this.getClass().getResource("gamescreen.css")).toExternalForm());
-
-		// Init InputManager
-		InputManager inputManager = new InputManager();
-		inputManager.notify(gameScreen);
-		scene.setOnKeyPressed(inputManager);
-		scene.setOnKeyPressed(e -> System.out.println(e.getCode()));
 
 		// Setup graphic loop
 		AnimationTimer graphicTimer = new AnimationTimer() {

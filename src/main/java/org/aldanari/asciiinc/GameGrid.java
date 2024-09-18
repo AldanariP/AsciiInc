@@ -5,11 +5,12 @@ import org.aldanari.asciiinc.cells.CharCell;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.Spliterator;
-import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 public class GameGrid implements Iterable<Cell> {
+
 	private final Cell[][] grid;
 	private final int heigth;
 	private final int width;
@@ -67,16 +68,19 @@ public class GameGrid implements Iterable<Cell> {
 	}
 
 	public String getViewAsString(int x, int y, int width, int height) {
-		this.throwIfOutOfBounds(x + width, y + height);
+		int viewWidth = x + width;
+		int viewHeight = y + height;
+		this.throwIfOutOfBounds(viewWidth, viewHeight);
 
 		StringBuilder sb = new StringBuilder();
-		for (int y_ = 0; y_ < height; y_++) {
-			for (int x_ = 0; x_ < width; x_++) {
+		for (int y_ = y; y_ < viewHeight; y_++) {
+			for (int x_ = x; x_ < viewWidth; x_++) {
 				sb.append(this.getCellAt(x_, y_).toChar());
 			}
 			sb.append('\n');
 		}
-		if (!sb.isEmpty()) { // remove the last empty line
+		// remove the last empty line
+		if (!sb.isEmpty()) {
 			sb.setLength(sb.length() - 1);
 		}
 		return sb.toString();
@@ -111,6 +115,32 @@ public class GameGrid implements Iterable<Cell> {
 
 	@Override
 	public Iterator<Cell> iterator() {
+		return new Iterator<>() {
+			private int x = 0;
+			private int y = 0;
+
+			@Override
+			public boolean hasNext() {
+				return x <= GameGrid.this.getWidth() && y <= GameGrid.this.getHeight();
+			}
+
+			@Override
+			public Cell next() throws NoSuchElementException {
+				Cell cell = getCellAt(x, y);
+				x++;
+				if (x >= GameGrid.this.getWidth()) {
+					x = 0;
+					y++;
+					if (y >= GameGrid.this.getHeight()) {
+						throw new NoSuchElementException();
+					}
+				}
+				return cell;
+			}
+		};
+	}
+
+	public Iterator<Cell> immutableIterator() {
 		return Arrays.stream(this.grid).flatMap(Arrays::stream).iterator();
 	}
 
@@ -121,6 +151,6 @@ public class GameGrid implements Iterable<Cell> {
 
 	@Override
 	public Spliterator<Cell> spliterator() {
-		return Iterable.super.spliterator();
+		return Arrays.stream(this.grid).flatMap(Arrays::stream).spliterator();
 	}
 }

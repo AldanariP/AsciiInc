@@ -31,6 +31,8 @@ public class GameScreen extends TextArea {
 		this.posY = 0;
 
 		this.gameGrid = null;
+
+		this.setOnKeyPressed(event -> handleKeyPress(event.getCode()));
 	}
 
 	public int getXSize() {
@@ -68,7 +70,6 @@ public class GameScreen extends TextArea {
 	}
 
 	public void updateView() {
-		System.out.println(this.posX + " " + this.posY);
 		this.setText(this.gameGrid.getViewAsString(this.posX, this.posY, this.getXSize(), this.getYSize()));
 	}
 
@@ -76,12 +77,12 @@ public class GameScreen extends TextArea {
 		this.gameGrid = gameGrid;
 	}
 
-	public void notifyPosChange(KeyCode keyCode) {
+	public void handleKeyPress(KeyCode keyCode) {
 		switch (keyCode) {
-			case UP -> this.posY++;
-			case DOWN -> this.posY--;
-			case RIGHT -> this.posX++;
-			case LEFT -> this.posX--;
+			case UP -> this.posY = Math.max(this.posY - 1, 0);
+			case DOWN -> this.posY = Math.min(this.posY + 1, this.gameGrid.getHeight() - this.getYSize() - 1);
+			case LEFT -> this.posX = Math.max(this.posX - 1, 0);
+			case RIGHT -> this.posX = Math.min(this.posX + 1, this.gameGrid.getWidth() - this.getXSize() - 1);
 			default -> {/* Do Nothing */}
 		}
 	}
