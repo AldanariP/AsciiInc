@@ -46,6 +46,11 @@ public class Runner extends Application {
 		Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
 		scene.getStylesheets().add(Objects.requireNonNull(this.getClass().getResource("gamescreen.css")).toExternalForm());
 
+		// Init controls
+		InputManager inputManager = new InputManager(gameScreen);
+		scene.setOnKeyPressed(keyEvent -> inputManager.addKeyPressed(keyEvent.getCode()));
+		scene.setOnKeyReleased(keyEvent -> inputManager.removeKeyPressed(keyEvent.getCode()));
+
 		// Setup graphic loop
 		AnimationTimer graphicTimer = new AnimationTimer() {
 			@Override
@@ -62,6 +67,7 @@ public class Runner extends Application {
 		stage.setTitle("AsciiInc");
 		stage.resizableProperty().setValue(false);
 		stage.requestFocus();
+		stage.setOnCloseRequest(_ -> inputManager.shutdown());
 		stage.setScene(scene);
 		stage.show();
 	}
